@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using NetCore.Data.DataAccess;
 using NetCore.Dto;
 using NetCore.Dto.Logic;
@@ -13,9 +14,11 @@ namespace NetCore.Service.Product
     {
         private readonly IProductData _db;
         private readonly ILogger _logger;
-        public ProductService( ILogger<ProductService> logger)
+        private readonly IConfiguration _configuration;
+        public ProductService(ILogger<ProductService> logger, IConfiguration configuration)
         {
-            _db = new ProductData();
+            _configuration = configuration;
+            _db = new ProductData(_configuration);
             _logger = logger;
         }
 
@@ -81,7 +84,7 @@ namespace NetCore.Service.Product
             var result = new RequestResult<ProductViewModel>();
             try
             {
-                var newdata =  await _db.AddProduct(MapperConfig.Mapper.Map<Data.Model.Product>(data));
+                var newdata = await _db.AddProduct(MapperConfig.Mapper.Map<Data.Model.Product>(data));
                 data.Id = newdata.Id;
                 result.Obj = data;
             }

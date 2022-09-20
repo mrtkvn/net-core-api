@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using NetCore.Dto;
 using NetCore.Service.Product;
 using System.Threading.Tasks;
@@ -11,10 +12,12 @@ namespace NetCoreApi.Controllers
     [ApiController]    
     public class ProductController : BaseApiController
     {
+        private readonly IConfiguration _configuration;
         private readonly IProductService _productService;
 
-        public ProductController(IProductService productService)
-        {
+        public ProductController(IProductService productService, IConfiguration configuration)
+        {            
+            _configuration = configuration;
             _productService = productService;
         }
 

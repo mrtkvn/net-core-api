@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using NetCore.Data.Context;
 using NetCore.Data.Model;
 using System.Collections.Generic;
@@ -9,8 +10,16 @@ namespace NetCore.Data.DataAccess
     public class ProductData : IProductData
     {
         private readonly NetCoreContext _db;
+        private readonly IConfiguration _configuration;
 
-        public ProductData() => _db = new NetCoreContext();
+        public ProductData(IConfiguration configuration)
+        {
+            _configuration = configuration;
+            var optionsBuilder = new DbContextOptionsBuilder<NetCoreContext>();
+            optionsBuilder.UseSqlServer(_configuration.GetConnectionString("Database"));
+
+            _db = new NetCoreContext(optionsBuilder.Options);
+        }
 
         public async Task<Product> GetProductWithProductId(int productId)
         {
@@ -22,18 +31,18 @@ namespace NetCore.Data.DataAccess
             return await _db.Products.ToListAsync();
         }
 
-        public async Task<Product> SetProduct(Product data , int productId)
+        public async Task<Product> SetProduct(Product data, int productId)
         {
             var old = await _db.Products.FindAsync(productId);
             if (old == null)
             {
                 return new Product();
             }
-               
+
             old.Description = data.Description;
             old.Name = data.Name;
             old.Price = data.Price;
-            
+
             await _db.SaveChangesAsync();
 
             return data;
